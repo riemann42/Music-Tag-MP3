@@ -97,10 +97,7 @@ No values are required (except filename, which is usually provided on object cre
 use strict;
 use MP3::Tag;
 use MP3::Info;
-use Data::Dumper;
-
-#use Image::Magick;
-our @ISA = qw(Music::Tag::Generic);
+use base qw(Music::Tag::Generic);
 
 sub default_options {
     { apic_cover => 1, };
@@ -404,10 +401,10 @@ sub set_tag {
 		$id3v2->remove_frame('TPUB');
 		$id3v2->add_frame( 'TPUB', 0, $self->info->label );
 	}
-	if ($self->info->url) {
-		$id3v2->remove_frame('WCOM');
-		$id3v2->add_frame( 'WCOM', 0, _url_encode( $self->info->url ) );
-	}
+#	if ($self->info->url) {
+#		$id3v2->remove_frame('WCOM');
+#		$id3v2->add_frame( 'WCOM', 0, _url_encode( $self->info->url ) );
+#	}
 
     if ( $self->info->encoded_by ) {
         $id3v2->remove_frame('TENC');
