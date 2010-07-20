@@ -1,0 +1,64 @@
+Music::Tag::MP3 version 0.28
+============================
+
+Music::Tag::MP3 is a plugin module for Music::Tag which gathers info
+from MP3 id3v1 and id3v2 headers using MP3::Info and MP3::Tag.
+
+Note:  As of version 0.28, Music-Tag is distributed as seperate packages.
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+   Muisc::Tag
+   MP3::Tag
+   MP3::Info
+
+Do not install an older version of MP3::Tag. 
+
+NOTE ON ID3v2.4 TAGS
+
+There seems to be a bug with MP3::Tag::ID3v2 0.9709. To use ID3v2.4 tags,
+download MP3::Tag from CPAN and apply the following patch:
+
+   patches/MP3-Tag-0.9709.ID3v2.4.patch
+
+To do this change directory to the MP3::Tag download directory and type
+
+   patch -p1 < ../Music-Tag-MP3/patches/MP3-Tag-0.9709.ID3v2.4.patch
+
+Then install as normal
+
+   perl Makefile.PL
+   make && make test
+   make install
+
+NOTE ON GAPLESS INFO
+
+This is used for a yet-to-be-maybe-someday released ipod library.  It collects
+the required gapless info.  There is a patch to MP3-Info that should be applied
+ONLY if you are interested in experimenting with this.  
+
+TEST FILES
+
+Are based on the sample file for Audio::M4P.  For testing only.
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2007 Edward J. Allen III
+ealleniii _at_ cpan _dot_ org
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.7 or,
+at your option, any later version of Perl 5 you may have available.
+

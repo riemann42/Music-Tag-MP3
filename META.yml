@@ -1,0 +1,22 @@
+--- #YAML:1.0
+name:                Music-Tag-MP3
+version:             0.29
+abstract:            Plugin module for Music::Tag to get information from id3 tags
+license:             perl
+author:              
+    - Edward Allen (ealleniii _at_ cpan _dot_ org)
+generated_by:        ExtUtils::MakeMaker version 6.42
+distribution_type:   module
+requires:     
+    Data::Dumper:                  2
+    Encode:                        2.12
+    File::Copy:                    0
+    File::Spec:                    3.24
+    IO::File:                      1.13
+    MP3::Info:                     1.23
+    MP3::Tag:                      0.9701
+    Music::Tag:                    0.27
+    Test::More:                    0
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3
