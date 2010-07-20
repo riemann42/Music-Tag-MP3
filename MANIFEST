@@ -10,4 +10,3 @@ t/2-pod.t
 t/3-pod-coverage.t
 t/elise.mp3
 t/options.conf
-META.yml                                 Module meta-data (added by MakeMaker)
