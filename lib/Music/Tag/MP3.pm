@@ -1,19 +1,22 @@
 package Music::Tag::MP3;
-our $VERSION = 0.29;
-our @AUTOPLUGIN = qw(mp3);
+our $VERSION = 0.32;
 
 # Copyright (c) 2007 Edward Allen III. Some rights reserved.
+
 #
-## This program is free software; you can redistribute it and/or
-## modify it under the terms of the Artistic License, distributed
-## with Perl.
+# You may distribute under the terms of either the GNU General Public
+# License or the Artistic License, as specified in the README file.
 #
 
 =pod
 
+=for changes stop
+
 =head1 NAME
 
 Music::Tag::MP3 - Plugin module for Music::Tag to get information from id3 tags
+
+=for readme stop
 
 =head1 SYNOPSIS
 
@@ -24,15 +27,69 @@ Music::Tag::MP3 - Plugin module for Music::Tag to get information from id3 tags
    
 	print "Artist is ", $info->artist;
 
+=for readme continue
+
 =head1 DESCRIPTION
 
 Music::Tag::MP3 is used to read id3 tag information. It uses MP3::Tag to read id3v2 and id3 tags from mp3 files. As such, it's limitations are the same as MP3::Tag. It does not write id3v2.4 tags, causing it to have some trouble with unicode.
 
-=head1 REQUIRED VALUES
+=begin readme
+
+=head1 INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+=head1 DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+   Muisc::Tag
+   MP3::Tag
+   MP3::Info
+
+Do not install an older version of MP3::Tag. 
+
+=head1 NOTE ON ID3v2.4 TAGS
+
+There seems to be a bug with MP3::Tag::ID3v2 0.9709. To use ID3v2.4 tags,
+download MP3::Tag from CPAN and apply the following patch:
+
+   patches/MP3-Tag-0.9709.ID3v2.4.patch
+
+To do this change directory to the MP3::Tag download directory and type
+
+   patch -p1 < ../Music-Tag-MP3/patches/MP3-Tag-0.9709.ID3v2.4.patch
+
+Then install as normal
+
+   perl Makefile.PL
+   make && make test
+   make install
+
+=head1 NOTE ON GAPLESS INFO
+
+This is used for a yet-to-be-maybe-someday released ipod library.  It collects
+the required gapless info.  There is a patch to MP3-Info that should be applied
+ONLY if you are interested in experimenting with this.  
+
+=head1 TEST FILES
+
+Are based on the sample file for Audio::M4P.  For testing only.
+   
+=end readme
+
+=for readme stop
+
+=head1 REQUIRED DATA VALUES
 
 No values are required (except filename, which is usually provided on object creation).
 
-=head1 SET VALUES
+=head1 SET DATA VALUES
 
 
 =cut
@@ -79,8 +136,13 @@ sub get_tag {
     $self->mp3->config( id3v2_mergepadding => 0 );
 	$self->mp3->config( autoinfo => "ID3v2", "ID3v1");
     return unless $self->mp3;
-    $self->mp3->get_tags;
 
+
+    $self->info->datamethods('filetype');
+    $self->info->datamethods('mip_fingerprint');
+    $self->info->filetype('mp3');
+
+    $self->mp3->get_tags;
 =over 4
 
 =item mp3 file info added:
@@ -218,6 +280,8 @@ TXXX[MusicBrainz Artist Type] artist_type
         if ($t) { $self->info->albumartist_sortname($t); }
         $t = $self->mp3->{ID3v2}->frame_select( "TXXX", "MusicBrainz Album Artist", [''] );
         if ($t) { $self->info->albumartist($t); }
+        $t = $self->mp3->{ID3v2}->frame_select( "TXXX", "ALBUMARTISTSORT", [''] );
+        if ($t) { $self->info->albumartist($t); }
         $t =
           $self->mp3->{ID3v2}->frame_select( "TXXX", "MusicBrainz Album Release Country", [''] );
         if ($t) { $self->info->countrycode($t); }
@@ -239,6 +303,16 @@ TXXX[MusicBrainz Artist Type] artist_type
         if ($t) { $self->info->artist_start($t); }
         $t = $self->mp3->{ID3v2}->frame_select( "TXXX", "Artist Ends", [''] );
         if ($t) { $self->info->artist_end($t); }
+
+        $t = $self->mp3->{ID3v2}->frame_select( "TXXX", "EAN/UPC", [''] );
+        if ($t) { $self->info->ean($t); }
+
+        $t = $self->mp3->{ID3v2}->frame_select( "TXXX", "MusicMagic Data", [''] );
+        if ($t) { $self->info->mip_puid($t); }
+
+        $t = $self->mp3->{ID3v2}->frame_select( "TXXX", "MusicMagic Fingerprint", [''] );
+        if ($t) { $self->info->mip_fingerprint($t); }
+
     }
 
 =pod
@@ -267,6 +341,7 @@ sub calculate_gapless {
 	my $file = shift;
 	my $gap = {};
 	require MP3::Info;
+    require Math::Int64;
 	$MP3::Info::get_framelengths = 1;
 	my $info = MP3::Info::get_mp3info($file);
 	if (($info) && ($info->{LAME}->{end_padding}))  {
@@ -362,7 +437,7 @@ sub set_tag {
         $id3v2->frame_select( 'TXXX', 'MusicBrainz Album Artist', [''], $self->info->albumartist );
     }
     if ( $self->info->albumartist_sortname ) {
-        $id3v2->frame_select( 'TXXX', 'MusicBrainz Album Artist Sortname',
+        $id3v2->frame_select( 'TXXX', 'ALBUMARTISTSORT',
                               [''], $self->info->albumartist_sortname );
     }
     if ( $self->info->countrycode ) {
@@ -371,6 +446,18 @@ sub set_tag {
     }
     if ( $self->info->mip_puid ) {
         $id3v2->frame_select( 'TXXX', 'MusicIP PUID', [''], $self->info->mip_puid );
+    }
+    if ( $self->info->mip_puid ) {
+        $id3v2->frame_select( 'TXXX', 'MusicMagic Data', [''], $self->info->mip_puid );
+    }
+    if ( $self->info->mip_fingerprint ) {
+        $id3v2->frame_select( 'TXXX', 'MusicMagic Fingerprint', [''], $self->info->mip_fingerprint );
+    }
+    if ( $self->info->ean ) {
+        $id3v2->frame_select( 'TXXX', 'EAN/UPC', [''], $self->info->ean );
+    }
+    elsif ($self->info->upc) {
+        $id3v2->frame_select( 'TXXX', 'EAN/UPC', [''], '0' . $self->info->upc );
     }
     if ( $self->info->artist_start ) {
         $id3v2->frame_select( 'TXXX', 'Artist Begins', [''], $self->info->artist_start );
@@ -483,6 +570,10 @@ Close the file and destroy the MP3::Tag object.
 
 Returns the MP3::Tag object
 
+=item calculate_gapless
+
+Calculate gapless playback information.  Requires patched version of MP3::Info and Math::Int64 to work.
+
 =back
 
 =head1 OPTIONS
@@ -497,38 +588,122 @@ Set to false to disable writing picture to tag.  True by default.
 
 Ignore embeded picture.
 
-=item calculate_gapless
-
-Calculate gapless playback information.  Requires patched version of MP3::Info to work.
-
 =back
 
 =head1 BUGS
 
 ID3v2.4 is not read reliablly and can't be writen.  Apic cover is unreliable in older versions of MP3::Tag.  
 
+=head1 CHANGES
+
+=for changes continue
+
+=over 4
+
+=item Release Name: 0.32
+
+=over 4
+
+=item *
+
+Changed to TXXX:ALBUMARTISTSORT from TXXX:MusicBrainz Album Artist Sortname (will still read both).  This is to partially address 54571.
+
+=back
+
+=item Release Name: 0.31
+
+=over 4
+
+=item *
+
+Added support for EAN/UPC TXXX tag, and for reading and writing Music Magic fingerprints and data (puid).
+
+=back
+
+=item Release Name: 0.30
+
+=over 4
+
+=item * 
+
+Documentation Changes
+
+=back
+
+=item Release Name: 0.29
+
+=over 4
+
+=item * 
+
+Kwalitee fixes
+
+=item *
+
+Added Music::Info patch and explanation about gapless data
+
+=back
+
+=begin changes
+
+=item Release Name: 0.28
+
+=over 4
+
+=item *
+
+Split from Music::Tag
+
+=back
+
+=end changes
+
+=back
+
+=for changes stop
+
 =head1 SEE ALSO INCLUDED
 
-L<Music::Tag>, L<Music::Tag::Amazon>, L<Music::Tag::File>, L<Music::Tag::FLAC>, L<Music::Tag::Lyrics>,
-L<Music::Tag::M4A>, L<Music::Tag::MusicBrainz>, L<Music::Tag::OGG>, L<Music::Tag::Option>,
 
 =head1 SEE ALSO
 
-L<MP3::Tag>, L<MP3::Info>
+L<MP3::Tag>, L<MP3::Info>, L<Music::Tag>
+
+=for readme continue
 
 =head1 AUTHOR 
 
 Edward Allen III <ealleniii _at_ cpan _dot_ org>
 
-=head1 LICENSE
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the Artistic License, distributed
-with Perl.
-
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Edward Allen III. Some rights reserved.
+Copyright (c) 2007,2008 Edward Allen III. Some rights reserved.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either:
+
+a) the GNU General Public License as published by the Free
+Software Foundation; either version 1, or (at your option) any
+later version, or
+
+b) the "Artistic License" which comes with Perl.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See either
+the GNU General Public License or the Artistic License for more details.
+
+You should have received a copy of the Artistic License with this
+Kit, in the file named "Artistic".  If not, I'll be glad to provide one.
+
+You should also have received a copy of the GNU General Public License
+along with this program in the file named "Copying". If not, write to the
+Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+Boston, MA 02110-1301, USA or visit their web page on the Internet at
+http://www.gnu.org/copyleft/gpl.html.
+
 
 =cut
 
