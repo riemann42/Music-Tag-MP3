@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 
-use Test::More tests => 15;
+use Test::More tests => 47;
 use File::Copy;
 use 5.006;
 
@@ -23,25 +23,39 @@ sub filetest {
         die unless $tag;
         ok( $tag->get_tag, 'get_tag called: ' . $filetest );
         ok( $tag->isa('Music::Tag'), 'Correct Class: ' . $filetest );
+		# Check basic set items
         is( $tag->artist, "Beethoven", 'Artist: ' . $filetest );
         is( $tag->album,  "GPL",       'Album: ' . $filetest );
         is( $tag->title,  "Elise",     'Title: ' . $filetest );
-        ok( $tag->title("Elise Test"), 'Set new title: ' . $filetest );
+
+		# Now go through each method supported and test.
+
+		my %values = ();
+
+		foreach my $f (qw(title artist album genre sortname mb_trackid lyrics encoded_by asin
+					sortname albumartist_sortname albumartist mb_artistid mb_albumid album_type 
+					artist_type mip_puid mip_puid mip_fingerprint )) {
+			my $val =  "test" . $f . int(rand(1000));
+			ok($tag->$f($val), "Set value for $f");
+			$values{$f} = $val;
+		}
+
         ok( $tag->set_tag, 'set_tag: ' . $filetest );
         $tag->close();
         $tag = undef;
         my $tag2 = Music::Tag->new( $filetest, $testoptions);
         ok( $tag2, 'Object created again: ' . $filetest );
-        die unless $tag2;
         ok( $tag2->get_tag, 'get_tag called: ' . $filetest );
-        is( $tag2->title, "Elise Test", 'New Title: ' . $filetest );
-        ok( $tag2->title("Elise"), 'Reset title: ' . $filetest );
-        ok( $tag2->set_tag, 'set_tag again: ' . $filetest );
+		
+
+		foreach my $f (keys %values) {
+			is($tag2->$f, $values{$f}, "Read back $f");
+		}
         $tag2->close();
         unlink($filetest);
     }
 }
 
-ok( Music::Tag->LoadOptions("t/options.conf"), "Loading options file.\n" );
+ok( Music::Tag->LoadOptions("t/options.conf"), "Loading options file." );
 filetest( "t/elise.mp3", "t/elisetest.mp3" );
 
