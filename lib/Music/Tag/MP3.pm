@@ -403,7 +403,6 @@ sub set_tag {
     }
 
     $self->status("Writing ID3v2 Tag");
-<<<<<<< HEAD
 
 	my $frame_map = $self->_id3v2_frame_map();
 
@@ -420,26 +419,6 @@ sub set_tag {
 			}
 		}
 	}
-=======
-    ($self->info->title) && $id3v2->title( $self->info->title );
-    ($self->info->artist) && $id3v2->artist( $self->info->artist );
-    ($self->info->album) && $id3v2->album( $self->info->album );
-    ($self->info->year) && $id3v2->year( $self->info->year );
-    ($self->info->track) && $id3v2->track( $self->info->tracknum );
-    ($self->info->genre) && $id3v2->genre( $self->info->genre );
-	if ($self->info->disc) {
-		$id3v2->remove_frame('TPOS');
-		$id3v2->add_frame( 'TPOS', 0, $self->info->disc );
-	}
-	if ($self->info->label) {
-		$id3v2->remove_frame('TPUB');
-		$id3v2->add_frame( 'TPUB', 0, $self->info->label );
-	}
-#	if ($self->info->url) {
-#		$id3v2->remove_frame('WCOM');
-#		$id3v2->add_frame( 'WCOM', 0, _url_encode( $self->info->url ) );
-#	}
->>>>>>> 542b70edaa97f88e4ef99c33432136bda5d2fd56
 
 	if ($self->info->lyrics) {
 		$id3v2->remove_frame('USLT');
