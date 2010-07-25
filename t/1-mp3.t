@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 58;
+use Test::More tests => 62;
 use lib 't';
 use MusicTagTest;
 use 5.006;
@@ -27,7 +27,7 @@ my $c = filetest("t/elise.mp3", "t/elisetest.mp3", {},{
 	picture_file => 'beethoven.jpg',
 	picture_sha1 => 'b2bf4b2f71bf01e12473dd0ebe295777127589f4',
 	picture_read => 1,
-	count => 56,
+	count => 60,
 	plugin => 'MP3'
 });
 

@@ -33,7 +33,7 @@ sub read_tag {
 		SKIP: {
 			skip "$meth test skipped", 1 if (! $testoptions->{values_in}->{$meth});
 			$c++;
-			cmp_ok($tag->$meth, 'eq', $testoptions->{$meth});
+			cmp_ok($tag->$meth, 'eq', $testoptions->{values_in}->{$meth});
 		}
 	}
 	return $c;
@@ -173,7 +173,7 @@ sub filetest {
         die unless $tag;
 
 
-		read_tag($tag);
+		read_tag($tag,$testoptions);
 		if ($testoptions->{picture_in}) {
 			ok($tag->picture_exists, 'Picture should exists');
 		}
