@@ -14,8 +14,9 @@ my %values = ();
 sub create_tag {
     my $filetest    = shift;
     my $tagoptions  = shift;
+	my $testoptions = shift;
 	return 0 unless (-f $filetest);
-	my $tag = Music::Tag->new($filetest, $tagoptions);
+	my $tag = Music::Tag->new($filetest, $tagoptions, $testoptions->{plugin} || 'Auto');
 	ok($tag, 'Object created: ' . $filetest);
 	die unless $tag;
 	ok($tag->get_tag,           'get_tag called: ' . $filetest);
@@ -167,7 +168,7 @@ sub filetest {
         return unless (-f $file);
         copy($file, $filetest);
 
-        my $tag = create_tag($filetest,$tagoptions);
+        my $tag = create_tag($filetest,$tagoptions,$testoptions);
 		$c+=3;
         die unless $tag;
 
@@ -194,7 +195,7 @@ sub filetest {
 			$c++;
 			$tag->close();
 			$tag = undef;
-			my $tag2 = create_tag($filetest,$tagoptions);
+			my $tag2 = create_tag($filetest,$tagoptions,$testoptions);
 			$c+=3;
 			$c+= random_read($tag2,$testoptions);
 			$c+= random_read_num($tag2,$testoptions);
