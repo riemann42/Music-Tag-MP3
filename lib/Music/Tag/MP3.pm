@@ -11,92 +11,6 @@ our $VERSION = 0.32;
 # License or the Artistic License, as specified in the README file.
 #
 
-=pod
-
-=for changes stop
-
-=head1 NAME
-
-Music::Tag::MP3 - Plugin module for Music::Tag to get information from id3 tags
-
-=for readme stop
-
-=head1 SYNOPSIS
-
-	use Music::Tag
-
-	my $info = Music::Tag->new($filename, { quiet => 1 }, "MP3");
-	$info->get_info();
-   
-	print "Artist is ", $info->artist;
-
-=for readme continue
-
-=head1 DESCRIPTION
-
-Music::Tag::MP3 is used to read id3 tag information. It uses MP3::Tag to read id3v2 and id3 tags from mp3 files. As such, it's limitations are the same as MP3::Tag. It does not write id3v2.4 tags, causing it to have some trouble with unicode.
-
-=begin readme
-
-=head1 INSTALLATION
-
-To install this module type the following:
-
-   perl Makefile.PL
-   make
-   make test
-   make install
-
-=head1 DEPENDENCIES
-
-This module requires these other modules and libraries:
-
-   Muisc::Tag
-   MP3::Tag
-   MP3::Info
-
-Do not install an older version of MP3::Tag. 
-
-=head1 NOTE ON ID3v2.4 TAGS
-
-There seems to be a bug with MP3::Tag::ID3v2 0.9709. To use ID3v2.4 tags,
-download MP3::Tag from CPAN and apply the following patch:
-
-   patches/MP3-Tag-0.9709.ID3v2.4.patch
-
-To do this change directory to the MP3::Tag download directory and type
-
-   patch -p1 < ../Music-Tag-MP3/patches/MP3-Tag-0.9709.ID3v2.4.patch
-
-Then install as normal
-
-   perl Makefile.PL
-   make && make test
-   make install
-
-=head1 NOTE ON GAPLESS INFO
-
-This is used for a yet-to-be-maybe-someday released ipod library.  It collects
-the required gapless info.  There is a patch to MP3-Info that should be applied
-ONLY if you are interested in experimenting with this.  
-
-=head1 TEST FILES
-
-Are based on the sample file for Audio::M4P.  For testing only.
-   
-=end readme
-
-=for readme stop
-
-=head1 REQUIRED DATA VALUES
-
-No values are required (except filename, which is usually provided on object creation).
-
-=head1 SET DATA VALUES
-
-
-=cut
-
 use MP3::Tag;
 use MP3::Info;
 use base qw(Music::Tag::Generic);
@@ -193,27 +107,6 @@ sub get_tag {
     $self->mp3->get_tags;
 =over 4
 
-=item mp3 file info added:
-
-   Currently this includes bitrate, duration, frequency, stereo, bytes, codec, frames, vbr, 
-=cut
-
-
-    if ( $self->mp3->mpeg_version() ) {
-        $self->info->codec(   "MPEG Version "
-                            . $self->mp3->mpeg_version()
-                            . " Layer "
-                            . $self->mp3->mpeg_layer() );
-    }
-
-
-
-=item auto tag info added:
-
-title, artist, album, track, comment, year, genre, track, totaltracks, disc, totaldiscs, composer, and performer
-
-=cut
-
 	my $mt_to_mp3 = $self->_auto_methods_map(); 
 #	eval {
 		while (my ($mt,$mp3) = each %{$mt_to_mp3}) {
@@ -232,33 +125,6 @@ title, artist, album, track, comment, year, genre, track, totaltracks, disc, tot
 		}
 #	};
 #    warn $@ if $@;
-
-=pod
-
-=item id3v2 tag info added:
-
-label, releasedate, lyrics (using USLT), encoder (using TFLT),  and picture (using apic). 
-
-=item The following information is gathered from the ID3v2 tag using custom tags
-
-TXXX[ASIN] asin
-TXXX[Sortname] sortname
-TXXX[MusicBrainz Album Artist Sortname] albumartist_sortname
-TXXX[MusicBrainz Album Artist] albumartist
-TXXX[ALBUMARTISTSORT] albumartist
-TXXX[MusicBrainz Album Release Country] countrycode
-TXXX[MusicBrainz Artist Id] mb_artistid
-TXXX[MusicBrainz Album Id] mb_albumid
-TXXX[MusicBrainz Album Status] album_type
-TXXX[MusicBrainz Artist Type] artist_type
-TXXX[MusicIP PUID] mip_puid
-TXXX[Artist Begins] artist_start
-TXXX[Artist Ends] artist_end
-TXXX[EAN/UPC] ean
-TXXX[MusicMagic Data] mip_puid
-TXXX[MusicMagic Fingerprint] mip_fingerprint
-
-=cut
 
 	my $frame_map = $self->_id3v2_frame_map();
 
@@ -318,15 +184,6 @@ TXXX[MusicMagic Fingerprint] mip_fingerprint
 		}
 
     }
-
-=pod
-
-=item Some data in the LAME header is obtained from MP3::Info (requires MP3::Info 1.2.3)
-
-pregap
-postgap
-
-=cut
 
    $self->{mp3info} = MP3::Info::get_mp3info($self->info->filename);
    if ($self->{mp3info}->{LAME}) {
@@ -469,6 +326,146 @@ sub _url_encode {
     return ($url);
 }
 
+
+1;
+
+# vim: tabstop=4
+__END__
+=pod
+
+=for changes stop
+
+=head1 NAME
+
+Music::Tag::MP3 - Plugin module for Music::Tag to get information from id3 tags
+
+=for readme stop
+
+=head1 SYNOPSIS
+
+	use Music::Tag
+
+	my $info = Music::Tag->new($filename, { quiet => 1 }, "MP3");
+	$info->get_info();
+   
+	print "Artist is ", $info->artist;
+
+=for readme continue
+
+=head1 DESCRIPTION
+
+Music::Tag::MP3 is used to read id3 tag information. It uses MP3::Tag to read id3v2 and id3 tags from mp3 files. As such, it's limitations are the same as MP3::Tag. It does not write id3v2.4 tags, causing it to have some trouble with unicode.
+
+=begin readme
+
+=head1 INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+=head1 DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+   Muisc::Tag
+   MP3::Tag
+   MP3::Info
+
+Do not install an older version of MP3::Tag. 
+
+=head1 NOTE ON ID3v2.4 TAGS
+
+There seems to be a bug with MP3::Tag::ID3v2 0.9709. To use ID3v2.4 tags,
+download MP3::Tag from CPAN and apply the following patch:
+
+   patches/MP3-Tag-0.9709.ID3v2.4.patch
+
+To do this change directory to the MP3::Tag download directory and type
+
+   patch -p1 < ../Music-Tag-MP3/patches/MP3-Tag-0.9709.ID3v2.4.patch
+
+Then install as normal
+
+   perl Makefile.PL
+   make && make test
+   make install
+
+=head1 NOTE ON GAPLESS INFO
+
+This is used for a yet-to-be-maybe-someday released ipod library.  It collects
+the required gapless info.  There is a patch to MP3-Info that should be applied
+ONLY if you are interested in experimenting with this.  
+
+=head1 TEST FILES
+
+Are based on the sample file for Audio::M4P.  For testing only.
+   
+=end readme
+
+=for readme stop
+
+=head1 REQUIRED DATA VALUES
+
+No values are required (except filename, which is usually provided on object creation).
+
+=head1 SET DATA VALUES
+
+
+=item mp3 file info added:
+
+   Currently this includes bitrate, duration, frequency, stereo, bytes, codec, frames, vbr, 
+=cut
+
+
+    if ( $self->mp3->mpeg_version() ) {
+        $self->info->codec(   "MPEG Version "
+                            . $self->mp3->mpeg_version()
+                            . " Layer "
+                            . $self->mp3->mpeg_layer() );
+    }
+
+
+
+=item auto tag info added:
+
+title, artist, album, track, comment, year, genre, track, totaltracks, disc, totaldiscs, composer, and performer
+
+=pod
+
+=item id3v2 tag info added:
+
+label, releasedate, lyrics (using USLT), encoder (using TFLT),  and picture (using apic). 
+
+=item The following information is gathered from the ID3v2 tag using custom tags
+
+TXXX[ASIN] asin
+TXXX[Sortname] sortname
+TXXX[MusicBrainz Album Artist Sortname] albumartist_sortname
+TXXX[MusicBrainz Album Artist] albumartist
+TXXX[ALBUMARTISTSORT] albumartist
+TXXX[MusicBrainz Album Release Country] countrycode
+TXXX[MusicBrainz Artist Id] mb_artistid
+TXXX[MusicBrainz Album Id] mb_albumid
+TXXX[MusicBrainz Album Status] album_type
+TXXX[MusicBrainz Artist Type] artist_type
+TXXX[MusicIP PUID] mip_puid
+TXXX[Artist Begins] artist_start
+TXXX[Artist Ends] artist_end
+TXXX[EAN/UPC] ean
+TXXX[MusicMagic Data] mip_puid
+TXXX[MusicMagic Fingerprint] mip_fingerprint
+
+=pod
+
+=item Some data in the LAME header is obtained from MP3::Info (requires MP3::Info 1.2.3)
+
+pregap
+postgap
+
 =back
 
 =head1 METHODS
@@ -523,82 +520,19 @@ Ignore embeded picture.
 
 ID3v2.4 is not read reliablly and can't be writen.  Apic cover is unreliable in older versions of MP3::Tag.  
 
-=head1 CHANGES
-
-=for changes continue
-
-=over 4
-
-=item Release Name: 0.32
-
-=over 4
-
-=item *
-
-Changed to TXXX:ALBUMARTISTSORT from TXXX:MusicBrainz Album Artist Sortname (will still read both).  This is to partially address 54571.
-
-=back
-
-=item Release Name: 0.31
-
-=over 4
-
-=item *
-
-Added support for EAN/UPC TXXX tag, and for reading and writing Music Magic fingerprints and data (puid).
-
-=back
-
-=item Release Name: 0.30
-
-=over 4
-
-=item * 
-
-Documentation Changes
-
-=back
-
-=item Release Name: 0.29
-
-=over 4
-
-=item * 
-
-Kwalitee fixes
-
-=item *
-
-Added Music::Info patch and explanation about gapless data
-
-=back
-
-=begin changes
-
-=item Release Name: 0.28
-
-=over 4
-
-=item *
-
-Split from Music::Tag
-
-=back
-
-=end changes
-
-=back
-
-=for changes stop
-
-=head1 SEE ALSO INCLUDED
-
-
 =head1 SEE ALSO
 
 L<MP3::Tag>, L<MP3::Info>, L<Music::Tag>
 
 =for readme continue
+
+=head1 SOURCE
+
+Source is available at github: L<http://github.com/riemann42/Music-Tag-MP3|http://github.com/riemann42/Music-Tag-MP3>.
+
+=head1 BUGTRACKING
+
+Please use github for bug tracking: L<http://github.com/riemann42/Music-Tag-MP3/issues|http://github.com/riemann42/Music-Tag-MP3/issues>.
 
 =head1 AUTHOR 
 
@@ -634,9 +568,3 @@ Boston, MA 02110-1301, USA or visit their web page on the Internet at
 http://www.gnu.org/copyleft/gpl.html.
 
 
-=cut
-
-
-1;
-
-# vim: tabstop=4
