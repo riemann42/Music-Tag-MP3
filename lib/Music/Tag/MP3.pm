@@ -1,10 +1,9 @@
 package Music::Tag::MP3;
 use strict;
 use warnings;
-
 our $VERSION = 0.32;
 
-# Copyright (c) 2007 Edward Allen III. Some rights reserved.
+# Copyright (c) 2007,2010 Edward Allen III. Some rights reserved.
 
 #
 # You may distribute under the terms of either the GNU General Public
@@ -105,7 +104,6 @@ sub get_tag {
     $self->info->filetype('mp3');
 
     $self->mp3->get_tags;
-=over 4
 
 	my $mt_to_mp3 = $self->_auto_methods_map(); 
 #	eval {
@@ -331,9 +329,6 @@ sub _url_encode {
 
 # vim: tabstop=4
 __END__
-=pod
-
-=for changes stop
 
 =head1 NAME
 
@@ -414,6 +409,7 @@ No values are required (except filename, which is usually provided on object cre
 
 =head1 SET DATA VALUES
 
+=over
 
 =item mp3 file info added:
 
@@ -433,8 +429,6 @@ No values are required (except filename, which is usually provided on object cre
 =item auto tag info added:
 
 title, artist, album, track, comment, year, genre, track, totaltracks, disc, totaldiscs, composer, and performer
-
-=pod
 
 =item id3v2 tag info added:
 
@@ -512,13 +506,13 @@ Set to false to disable writing picture to tag.  True by default.
 
 =item ignore_apic
 
-Ignore embeded picture.
+Ignore embedded picture.
 
 =back
 
 =head1 BUGS
 
-ID3v2.4 is not read reliablly and can't be writen.  Apic cover is unreliable in older versions of MP3::Tag.  
+ID3v2.4 is not read reliably and can't be written.  Apic cover is unreliable in older versions of MP3::Tag.  
 
 =head1 SEE ALSO
 
@@ -530,7 +524,7 @@ L<MP3::Tag>, L<MP3::Info>, L<Music::Tag>
 
 Source is available at github: L<http://github.com/riemann42/Music-Tag-MP3|http://github.com/riemann42/Music-Tag-MP3>.
 
-=head1 BUGTRACKING
+=head1 BUG TRACKING
 
 Please use github for bug tracking: L<http://github.com/riemann42/Music-Tag-MP3/issues|http://github.com/riemann42/Music-Tag-MP3/issues>.
 
