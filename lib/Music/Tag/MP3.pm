@@ -91,6 +91,20 @@ sub _id3v2_frame_map {
 	};
 }
 
+sub set_values {
+	my $self = shift;
+	return (keys %{$self->_auto_methods_map}, 
+		    keys %{$self->_id3v2_frame_map}, 
+			'picture', 'lyrics', 'encoder', 'label');
+}
+
+sub saved_values {
+	my $self = shift;
+	return (keys %{$self->_auto_methods_map}, 
+		    keys %{$self->_id3v2_frame_map}, 
+			'picture', 'lyrics', 'encoder', 'label');
+}
+
 sub get_tag {
     my $self     = shift;
     return unless ( $self->mp3 );
@@ -466,31 +480,39 @@ postgap
 
 =over 4
 
-=item default_options
+=item B<default_options()>
 
 Returns the default options for the plugin.  
 
-=item set_tag
+=item B<set_tag()>
 
 Save object back to ID3v2.3 and ID3v1 tag.
 
-=item get_tag
+=item B<get_tag()>
 
 Load information from ID3v2 and ID3v1 tags.
 
-=item strip_tag
+=item B<set_values()>
+
+A list of values that can be set by this module.
+
+=item B<saved_values()>
+
+A list of values that can be saved by this module.
+
+=item B<strip_tag()>
 
 Remove the tag from the file.
 
-=item close
+=item B<close()>
 
 Close the file and destroy the MP3::Tag object.
 
-=item mp3
+=item B<mp3()>
 
 Returns the MP3::Tag object
 
-=item calculate_gapless
+=item B<calculate_gapless()>
 
 Calculate gapless playback information.  Requires patched version of MP3::Info and Math::Int64 to work.
 
