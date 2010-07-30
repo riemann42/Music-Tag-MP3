@@ -1,5 +1,8 @@
 CHANGES
 	Release Name: 0.40_01
+		*	Changed requirement for Music::Tag to .40_01
+
+	Release Name: 0.40_01
 		*	Started using git and github
 
 		*	Normalized version accross plugins
