@@ -206,6 +206,13 @@ sub get_tag {
 	   }
     }
 
+    if ( $self->mp3->mpeg_version() ) {
+        $self->info->codec(   "MPEG Version "
+                            . $self->mp3->mpeg_version()
+                            . " Layer "
+                            . $self->mp3->mpeg_layer() );
+    }
+
     return $self;
 }
 
@@ -429,15 +436,6 @@ No values are required (except filename, which is usually provided on object cre
 
    Currently this includes bitrate, duration, frequency, stereo, bytes, codec, frames, vbr, 
 =cut
-
-
-    if ( $self->mp3->mpeg_version() ) {
-        $self->info->codec(   "MPEG Version "
-                            . $self->mp3->mpeg_version()
-                            . " Layer "
-                            . $self->mp3->mpeg_layer() );
-    }
-
 
 
 =item auto tag info added:
