@@ -8,7 +8,7 @@ our $VERSION = .40_02;
 #
 # You may distribute under the terms of either the GNU General Public
 # License or the Artistic License, as specified in the README file.
-#
+# 
 
 use MP3::Tag;
 use MP3::Info;
@@ -123,7 +123,8 @@ sub get_tag {
 #	eval {
 		while (my ($mt,$mp3) = each %{$mt_to_mp3}) {
 			my $method = $mp3->{method};
-			$self->info->$mt($self->mp3->$method);
+            my $imethod = 'set_'.$mt;
+			$self->info->$imethod($self->mp3->$method);
 #			$self->info->$mt( $mp3->{decode} ? 
 #				_decode_uni($self->mp3->$method) : 
 #				$self->mp3->$method);
@@ -158,12 +159,13 @@ sub get_tag {
 		}
 		
         my $day = $self->mp3->{ID3v2}->get_frame('TDAT') || "";
-        if ( ( $day =~ /(\d\d)(\d\d)/ ) && ( $self->info->year ) ) {
+        if ( ( $day =~ /(\d\d)(\d\d)/ ) && ( $self->info->has_year ) ) {
 			my $releasedate = $self->info->year . "-" . $1 . "-" . $2 ;
 			my $time = $self->mp3->{ID3v2}->get_frame('TIME') || "";
 			if ($time =~ /(\d\d)(\d\d)/) {
 				$releasedate .= " ". $1 . ":" . $2;
 			}
+            print STDERR "Reading releasedate of $releasedate\n";
             $self->info->releasetime($releasedate); 
         }
 
@@ -285,7 +287,8 @@ sub set_tag {
 	while (my ($mt, $mp3d) = each %{$frame_map}) {
 		my $mp3 = $mp3d->[0];
 		next if ((exists $mp3->{readonly}) && ($mp3->{readonly}));
-		if ($self->info->$mt) {
+        my $tmt = 'has_'.$mt;
+		if ($self->info->$tmt) {
 			my $val = $self->info->$mt;
 			if ((not ref $val) && (exists $mp3->{field}) && ($mp3->{field})) {
 				$val = { $mp3->{field} => $self->info->$mt };
@@ -296,22 +299,24 @@ sub set_tag {
 		}
 	}
 
-	if ($self->info->lyrics) {
+	if ($self->info->has_lyrics) {
 		$id3v2->remove_frame('USLT');
 		$id3v2->add_frame( 'USLT', 0, "ENG", "Lyrics", $self->info->lyrics );
 	}
-    if ( $self->info->encoded_by ) {
+    if ( $self->info->has_encoded_by ) {
         $id3v2->remove_frame('TENC');
         $id3v2->add_frame( 'TENC', 0, $self->info->encoded_by );
     }
-					
-    if (($self->info->releasedate) && ( $self->info->releasetime =~ /(\d\d\d\d)-?(\d\d)?-?(\d\d)? ?(\d\d)?:?(\d\d)?/ )) {
+    if (($self->info->has_releasetime) && ( $self->info->releasetime =~ /(\d\d\d\d)-?(\d\d)?-?(\d\d)? ?(\d\d)?:?(\d\d)?/ )) {
+        my $year = $1;
 		my $day = sprintf("%02d%02d", $2 || 0, $3 || 0);
 		my $time = sprintf("%02d%02d", $4 || 0, $5 || 0);
         $id3v2->remove_frame('TDAT');
         $id3v2->add_frame( 'TDAT', 0, $day );
         $id3v2->remove_frame('TIME');
         $id3v2->add_frame( 'TIME', 0, $time );
+        $self->mp3->set_year($year);
+        print STDERR "Writing releasedate: $day and time: $time\n"; 
     }
     if (! $self->options->{ignore_apic} ) {
         $id3v2->remove_frame('APIC');
