@@ -1,4 +1,7 @@
 CHANGES
+	Release Name: 0.40_02
+        *   Bug in POD
+        
 	Release Name: 0.40_01
 		*	Started using git and github
 
