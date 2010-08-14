@@ -469,7 +469,7 @@ Music::Tag::MP3 - Plugin module for Music::Tag to get information from id3 tags
 	use Music::Tag
 
 	my $info = Music::Tag->new($filename, { quiet => 1 }, "MP3");
-	$info->get_info();
+	$info->get_tag();
    
 	print "Artist is ", $info->artist;
 
